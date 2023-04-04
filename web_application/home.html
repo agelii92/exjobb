@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>
+
+HTML Forms with PyScript     
+    
+</title>
+
+<link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+<script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+
+</head>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <script type="text/javascript"
+    src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+<style>
+
+    
+
+    .split {
+  height: 100%;
+  width: 70%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+input[type=text], select {
+      width: 25%;
+      padding: 2px 2px;
+      margin: 2px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 1px;
+      box-sizing: border-box;
+    }
+    
+    input[type=submit] {
+      width: 15%;
+      background-color: #4c4faf;
+      color: white;
+      padding: 2px 2px;
+      margin: 2px 0;
+      border: none;
+      border-radius: 1px;
+      cursor: pointer;
+    }
+    
+    input[type=submit]:hover {
+      background-color: #45a049;
+    }
+.left {
+left: 0;
+}
+
+.right {
+  right: 0;
+}
+
+    </style>
+
+<body>
+    <py-env>
+        - numpy
+        - matplotlib
+        - scv
+        - pandas
+        - path:
+            - ./scalings.csv
+    </py-env>
+    <div class="split left">
+    <br>
+    <br>
+    <form onsubmit="return false">
+        <p>
+            &nbsp &nbsp   Density &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp <input type="text" id="density" name="density" value="1.1"> &nbsp [$\frac{g}{cm^3}$]
+        </p>
+        <br>
+
+    <form onsubmit="return false">
+        <p>
+            &nbsp &nbsp   X-ray energy  &nbsp <input type="text" id="Xray_en" name="Xray_en" value="3000"> &nbsp [$eV$]
+        </p>
+        <br>
+
+    <form onsubmit="return false">
+        <p>
+            &nbsp &nbsp   Fluence &nbsp &nbsp  &nbsp &nbsp &nbsp <input type="text" id="fluence" name="fluence" value="15000"> &nbsp [$\frac{J}{cm^2}$]
+        </p>
+        <br>
+
+     <form onsubmit="return false">
+        <p>
+            &nbsp &nbsp   Hydrogen &nbsp &nbsp &nbsp  <input type="text" id="hydrogen" name="hydrogen" value="0.3"><b id = 'prc_hydrogen'></b>
+        </p>
+        <br>
+
+    <form onsubmit="return false">
+         <p>
+            &nbsp &nbsp  Carbon  &nbsp &nbsp &nbsp &nbsp &nbsp <input type="text" id="carbon" name="carbon" value="0.2"><b id = 'prc_carbon'></b>
+        </p>
+        <br>
+
+    <form onsubmit="return false">
+        <p>
+            &nbsp &nbsp  Nitrogen &nbsp &nbsp &nbsp &nbsp <input type="text" id="nitrogen" name="nitrogen" value="0.1"><b id = 'prc_nitrogen'></b>
+        </p>
+        <br>
+
+    <form onsubmit="return false">
+        <p>
+            &nbsp &nbsp  Oxygen &nbsp &nbsp &nbsp  &nbsp &nbsp<input type="text" id="oxygen" name="oxygen" value="0.1"><b id = 'prc_oxygen'></b>
+        </p>
+        <br>
+
+    <form onsubmit="return false">
+        <p>
+            &nbsp &nbsp Sulphur &nbsp &nbsp &nbsp &nbsp <input type="text" id="sulphur" name="sulphur" value="0.01"><b id = 'prc_sulphur'></b>
+        </p>
+        <br>
+        &nbsp &nbsp &nbsp &nbsp <input pys-onClick="get_percent" type="submit" id="element" value="Caclulate element %">
+        <br>
+        <br>
+        <p>
+            &nbsp &nbsp &nbsp &nbsp Scale &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp  <select name="scale" id="scale">
+            <option value="log">log</option>
+            <option value="linear">linear</option>
+        </select>
+        <form onsubmit="return false">
+            <p>
+                &nbsp &nbsp  Energy range &nbsp  &nbsp &nbsp<input type="text" id="start" name="start" value="start energy" style="width: 150px;" ><b id = 'start'></b>  &nbsp  &nbsp  -  &nbsp  &nbsp <input type="text" id="end" name="end" value="end energy" style="width: 150px;" ><b id = 'end'></b> &nbsp [$eV$]
+            </p>
+            <br>
+        </p>
+        <br>
+        <p>
+            &nbsp &nbsp &nbsp &nbsp   What to plot &nbsp &nbsp   <select name="property" id="property">
+            <option value="spectrum">Emission spectrum</option>
+            <option value="electron_temperature">Electron temperature</option>
+            <option value="sulphur_zbar">Mean S ionization</option>
+            <option value="total_zbar">Mean total ionization</option>
+        </select>
+        </p>
+        <br>
+        &nbsp &nbsp &nbsp &nbsp  <input pys-onClick="sub" type="submit" id="btn-form" value="Submit">
+
+
+    </form> 
+ 
+    <p id = 'output1'></p>
+    <br>
+    <p id = 'output2'></p>
+    <br>
+    <p id = 'output3'></p>
+    <br>
+    <p id = 'output4'></p>
+    <br>
+    <p id = 'output5'></p>
+    <br>
+    <p id = 'output6'></p>
+    <br>
+    <p id = 'output7'></p>
+    <br>
+    <p id = 'output8'></p>
+    <br>
+    <p id = 'output9'></p>
+    <br>
+    <p id = 'output10'></p>
+    <br>
+    <p id = 'csv'></p>
+    <br>
+<py-script output="matplotlib-lineplot">
+    import numpy as np
+    from matplotlib import pyplot as plt
+    from pyodide.http import open_url
+    import pandas as pd
+
+    plt.rcParams['mathtext.fontset'] = 'cm'
+    plt.rcParams['font.family'] = 'STIXGeneral'
+
+    num_layers_dict = {'spectrum':5,'electron_temperature':8,'sulphur_zbar':2,'total_zbar':4}
+
+    csv_url = 'https://raw.githubusercontent.com/agelii92/exjobb/main/weights/scalings.csv'
+    weight_url = 'https://raw.githubusercontent.com/agelii92/exjobb/main/weights/'
+    #weight_url = 'https://raw.githubusercontent.com/agelii92/exjobb/main/weights/spectrum_model_weights/'
+
+    existing_models = ['spectrum','electron_temperature','sulphur_zbar','total_zbar']
+
+    weight_array = [[np.array(pd.read_csv(open_url(f'{weight_url}{model_key}_model_weights/{model_key}_model_W{i}.csv')))[0:,1:] for i in list(range(1,num_layers_dict[model_key]+1))] for model_key in existing_models]
+    bias_array = [[np.array(pd.read_csv(open_url(f'{weight_url}{model_key}_model_weights/{model_key}_model_b{i}.csv')))[:,1] for i in list(range(1,num_layers_dict[model_key]+1))] for model_key in existing_models]
+    W = {model_key : value for (model_key, value) in zip(existing_models,weight_array)}
+    b = {model_key : value for (model_key, value) in zip(existing_models,bias_array)}
+
+    scalings_1 = pd.read_csv(open_url(csv_url))
+    maxvals_X = list(scalings_1.iloc[0,1:])
+    minvals_X = list(scalings_1.iloc[1,1:])
+    #maxval_y = scalings_1.iloc[2,1]
+    #shift_y = scalings_1.iloc[3,1]
+
+    #num_layers = 5
+    #url = 'https://raw.githubusercontent.com/agelii92/exjobb/main/weights/spectrum_model_weights/'
+    #W = [np.array(pd.read_csv(open_url(f'{url}spectrum_model_W{i}.csv')))[0:,1:] for i in list(range(1,num_layers+1))]
+    #b = [np.array(pd.read_csv(open_url(f'{url}spectrum_model_b{i}.csv')))[:,1] for i in list(range(1,num_layers+1))]
+    
+    E = np.array(pd.read_csv(open_url('https://raw.githubusercontent.com/agelii92/exjobb/main/weights/energy_values.csv')))[:,1]
+    t = np.array(pd.read_csv(open_url('https://raw.githubusercontent.com/agelii92/exjobb/main/weights/time_values.csv')))[:,1]
+
+    def sub(*args,**kwargs):
+        plot_property = Element('property').value
+        feature_names = ['fluence','Xray_en','density']
+        atom_names = ['hydrogen','nitrogen','oxygen','carbon','sulphur']
+        atoms = [float(Element(j).value) for j in atom_names]
+        s = sum(atoms)
+        atoms = [i/s for i in atoms]
+
+        #Setup values for plot axis
+        
+        scale = Element('scale').value
+        start = Element('start').value
+        end = Element('end').value
+        if start == 'start energy':
+            start = 0
+        else:
+            start = float(start)
+        if end == 'end energy':
+            end = max(E)
+        else:
+            end = float(end)
+
+        feature_values = [float(Element(j).value) for j in feature_names]
+        
+        for i in list(range(len(atoms))):
+            feature_values.append(atoms[i])
+            feature_names.append(atom_names[i])
+
+        #output_places = [f'output{i}' for i in list(range(1,9))]
+        #for i in list(range(len(output_places))):
+        feature_values_scaled = scale_input(feature_values)
+        z = np.array(feature_values_scaled).reshape(1,8)
+        y = predict(plot_property,z)
+
+
+        fig,ax=plt.subplots(figsize=[0.6*12.8, 0.6*9.6])
+        ax.set_xscale(scale)
+        ax.set_yscale(scale)
+
+        y = scale_y(y,plot_property)
+        if plot_property == 'spectrum':
+            y = np.exp(y).reshape(E.shape)
+            indep_var = E
+        else:
+            y = y.reshape(t.shape)
+            indep_var = t
+
+        ax.set_title(f'Estimated {plot_property}'.replace('_',' '),fontsize=15)
+
+        if scale == 'linear':
+            if plot_property == 'spectrum':
+                ax.set_ylabel(r'Fluence [$ergs/cm^{2}/s/Hz/str$]',fontsize=17)
+                ax.set_xlabel('Energy [eV]',fontsize=15)
+            else:
+                ax.set_ylabel(plot_property.replace('_', ' '),fontsize=15)
+                ax.set_xlabel('time [fs]',fontsize=15)
+                indep_var = indep_var*1e15
+                
+        if scale == 'log':
+            if plot_property == 'spectrum':
+                ax.set_ylabel(r'Fluence [$ergs/cm^{2}/s/Hz/str$] (log)',fontsize=17)
+                ax.set_xlabel('Energy [eV] (log)',fontsize=17)
+                ax.set_xlim(start,end)
+        ax.plot(indep_var[0:-1],y[0:-1],linewidth=0.5)
+        Element('matplotlib-lineplot').write(fig)
+        
+
+
+    def leakyrelu(x):
+        shape = x.shape
+        print(shape)
+        x = x[0,:]
+
+        output = []
+        for i in x:
+            if i < 0:
+                output.append(0.3*i)
+            else:
+                output.append(i)
+
+        return np.array(output).reshape(shape)
+
+    def predict(model,z):
+        #if model == 'spectrum':
+            
+        W_matrix = W[model]
+        b_matrix = b[model] 
+        z1 = np.matmul(z,W_matrix[0])+b_matrix[0]
+
+
+        for i in list(range(num_layers_dict[model])):
+            z = leakyrelu(np.matmul(z,W_matrix[i]) + b_matrix[i])
+
+        return z
+
+
+    def scale_input(X):
+        length = len(X)
+        return [(X[prop]-minvals_X[prop])/(maxvals_X[prop]-minvals_X[prop]) for prop in list(range(length))]
+    
+    def scale_y(y,plot_property):
+        scalings = pd.read_csv(open_url(f'https://raw.githubusercontent.com/agelii92/exjobb/main/weights/scalings_{plot_property}.csv'))
+        maxval_y = scalings.iloc[2,1]
+        shift_y = scalings.iloc[3,1]
+        return y*maxval_y - np.ones(y.shape)*shift_y
+
+
+    def get_percent(*args,**kwargs):
+        atom_names = ['hydrogen','carbon','nitrogen','oxygen','sulphur']
+        hydrogen = float(Element('hydrogen').value)
+        oxygen = float(Element('oxygen').value)
+        nitrogen = float(Element('nitrogen').value)
+        carbon = float(Element('carbon').value)
+        sulphur = float(Element('sulphur').value)
+        atom_values = [hydrogen,carbon,nitrogen,oxygen,sulphur]
+        
+        output_places = [f'prc_{i}' for i in atom_names]
+        s = sum(atom_values)
+        atom_factors = [i/s for i in atom_values]
+        for i in list(range(len(atom_names))):
+            Element(output_places[i]).write(f'{round(atom_factors[i]*100,1)}%')
+
+
+ </py-script>
+</div>
+
+<div class="split right">
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div id="matplotlib-lineplot"></div>
+
+<py-script>
+#from matplotlib import pyplot as plt
+#fig,ax=plt.subplots()
+#ax.plot([1,2],[1,2])
+#fig
+
+
+</py-script>
+
+
+</div>
+
+</body>
+</html>
+</html>
