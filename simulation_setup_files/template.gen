@@ -1,0 +1,195 @@
+c       **** GENETIC PROTEIN CRYSTAL ****
+c SASE x-ray proflie
+c (Bergh_2008_Feasibility)
+c ------------------------------------------------------------
+c Aliases
+c ------------------------------------------------------------
+
+c hemoglobin crystal
+alias RMAX 4.e-4                 ! thickness of the sample (cm)
+alias TEMP 0.025                 ! temperature (eV)
+alias RHO  <MODIFY_RHO>                  ! density (g/cm^3)
+
+c energy and bandwidth x-ray laser (eV)
+alias E1 <MODIFY_BEAM>                  ! laser energy
+alias E2 E1 * 1.001              ! beam width 0.1%
+alias MULT HPEV / (E2 - E1)      ! convert delta E to Hz
+
+c max intensity of the laser in (erg/s/cm^2)
+alias JEV 1.602176565e-19                        ! [J/eV]
+alias FLUENCE <MODIFY_FLUENCE>                              ! [J/cm^2]
+alias P_FLUENCE FLUENCE / (E1 * JEV)             ! [photons/cm^2]
+alias PTIME <MODIFY_PULSE_LENGTH>                                  ! pulse duration [fs] NOTE: HOW TO HANDLE THIS? EXAMINE
+alias ILASER (FLUENCE * 1.e+7) *  / (PTIME * 1.e-15)
+
+c gaussian pulse shape
+c <NO_GAUSSIAN>alias G_MEAN 30.                 ! pulse location (fs)
+c <NO_GAUSSIAN>alias G_STD PTIME / 1.6651       ! pulse width gaussian
+
+c ------------------------------------------------------------
+c Geometry
+c ------------------------------------------------------------
+
+geometry plane
+rlin 1 4 0.0 RMAX             ! thickness sample
+
+c ------------------------------------------------------------
+c Materials
+c ------------------------------------------------------------
+
+atoms hydrogenic h
+modeltype dca
+atoms hydrogenic c
+modeltype dca term
+atoms hydrogenic n
+modeltype dca term
+atoms hydrogenic o
+modeltype dca term
+atoms hydrogenic s
+modeltype dca term
+
+region 1 4 TEMP
+  rho RHO
+  element 1 <MODIFY_HYDROGEN>
+  element 2 <MODIFY_CARBON>
+  element 3 <MODIFY_NITROGEN>
+  element 4 <MODIFY_OXYGEN>
+  element 5 <MODIFY_SULPHUR>
+
+c ------------------------------------------------------------
+c   Radiation
+c ------------------------------------------------------------
+
+angles 1
+ebins 500 1.e-1 1.e+4
+spectrum 10000 1.e-1 1.e+4 1.
+
+c ------------------------------------------------------------
+c   Sources
+c ------------------------------------------------------------
+
+c <SASE>xfilebc 1 -1. 0. 1. 0.
+c <SASE>#include <MODIFY_XFILENAME>.xfile
+
+c <NO_GAUSSIAN>xfilebc 1 -1. 0. 1. 0.
+c <NO_GAUSSIAN>source jbndry 1 E1 E2 value history 1 MULT
+c <NO_GAUSSIAN>history 1 ILASER 1.e-15 gaussian G_MEAN G_STD
+
+c ------------------------------------------------------------
+c   Controls
+c ------------------------------------------------------------
+
+tstart 0.
+tquit 500.e-15
+
+c ------------------------------------------------------------
+c   Switches and Parameters
+c ------------------------------------------------------------
+
+c atomic kinetics
+switch 55 1                 ! continuum and degeneracy (formula) lowering
+switch 176 1                ! E-K continuum lowering
+switch 155 1                ! limit CL until first ionization
+param 95 1.e-2              ! minimum electron density
+switch 170 -1               ! limit electron collision impact
+switch 151 1                ! electron degeneracy
+
+c output
+switch 11 2                 ! make plot
+
+c continuum radiation
+switch 36 1                 ! turn on continuum transfer Feautrier
+switch 35 -1                ! free-free opacity Coulomb log
+
+c escape factors
+switch 33  4                ! use generalized escape factors
+
+c spectral radiation
+switch 52 -1                ! include Stark broadening
+switch 72 1                 ! steps between spectrum calc
+switch 73 1                 ! steps between spectrum output
+switch 125 1                ! correct int emission
+
+c temperature calculations
+switch 16 1                 ! BPS Coulomb log
+switch 31 1                 ! temperature calculation
+switch 49 1                 ! include thermal conduction
+switch 51 2                 ! Lee-More 2-phase e-i collision
+switch 157 1                ! redo heating rate calculation
+param 102 TEMP              ! min electron temp
+param 30 0                  ! fully implicit calculation
+
+c convergence and timestep
+switch 44 20
+param 41 1.e-16             ! start timestep
+param 44 1.e-18             ! minimum timestep
+param 45 1.e-15             ! maximum timestep
+param 46 0.01
+switch 120 1                ! print diagnostics
+switch 30 2                 ! dump every n steps changed from 0 27/2 H.A
+
+c ------------------------------------------------------------
+c   Edits
+c ------------------------------------------------------------
+
+dump jsp jnu
+
+c time edits
+
+plot "TEV vs TIME"
+xvar time
+yvar tev 0 1:4
+
+plot "TIV vs TIME"
+xvar time
+yvar tiv 0 1:4
+
+plot "ZBAR vs TIME"
+xvar time
+yvar zbar 0 1:4
+
+plot "ZBAR1 vs TIME"
+xvar time
+yvar zbar 1 1:4
+
+
+plot "ZBAR2 vs TIME"
+xvar time
+yvar zbar 2 1:4
+
+
+plot "ZBAR3 vs TIME"
+xvar time
+yvar zbar 3 1:4
+
+
+plot "ZBAR4 vs TIME"
+xvar time
+yvar zbar 4 1:4
+
+plot "ZBAR5 vs TIME"
+xvar time
+yvar zbar 5 1:4
+
+plot "ERAD vs TIME"
+xvar time
+yvar erad 0 1:4
+
+plot "E-DENS vs TIME"
+xvar time
+yvar ne 0 1:4
+
+plot "ION DENSITY vs TIME"
+xvar time
+yvar ni 1:5 1
+
+plot "INTENSITY vs SP_ENERGY"
+time-integrated
+xvar sp_energy 0
+yvar jsp 0 1:4
+
+plot "INTENSITY vs ENERGY"
+time-averaged
+xvar ebins
+yvar jnu 0 1:4
+
